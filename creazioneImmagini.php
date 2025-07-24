@@ -59,6 +59,7 @@ $prompt = sanitize_prompt($_POST['prompt'] ?? '');
 <!DOCTYPE html>
 <html lang="it">
 <head>
+         <link rel="icon" href="./images/favicon.ico" type="image/x-icon" />
     <meta charset="UTF-8" />
     <title>Penguin AI ChatBot</title>
     <style>
@@ -93,7 +94,7 @@ $prompt = sanitize_prompt($_POST['prompt'] ?? '');
             height: 40px;
             width: 40px;
             border-radius: 50%;
-            background: white url('https://upload.wikimedia.org/wikipedia/commons/1/12/Penguin_icon.svg') no-repeat center/contain;
+               background: white url('./images/profilo.png') no-repeat center/contain;
             cursor: pointer;
             flex-shrink: 0;
         }
@@ -250,14 +251,14 @@ $prompt = sanitize_prompt($_POST['prompt'] ?? '');
 <body>
 
 <header>
-    <a href="/" id="logo" title="Homepage Penguin AI"></a>
+    <a href="./" id="logo" title="Homepage Penguin AI"></a>
     <div id="menuToggle" aria-label="Menu hamburger" role="button" tabindex="0" aria-expanded="false" aria-controls="menu">
         <span></span>
         <span></span>
         <span></span>
     </div>
     <nav id="menu" role="menu" aria-hidden="true">
-        <a href="/" role="menuitem" tabindex="-1">Generazione Testi</a>
+        <a href="./" role="menuitem" tabindex="-1">Generazione Testi</a>
         <a href="./creazioneImmagini.php" role="menuitem" tabindex="-1">Generazione Immagini</a>
     </nav>
 </header>

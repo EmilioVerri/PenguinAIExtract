@@ -140,8 +140,10 @@ $message = preg_replace('/[^\PC\s]/u', '', $message); // rimuove caratteri non u
 <!DOCTYPE html>
 <html lang="it">
 <head>
+  
     <meta charset="UTF-8" />
     <title>Penguin AI ChatBot</title>
+     <link rel="shortcut icon" href=".\images\favicon.ico" type="image/x-icon">
     <style>
   
         * {
@@ -176,7 +178,7 @@ $message = preg_replace('/[^\PC\s]/u', '', $message); // rimuove caratteri non u
             height: 40px;
             width: 40px;
             border-radius: 50%;
-            background: white url('https://upload.wikimedia.org/wikipedia/commons/1/12/Penguin_icon.svg') no-repeat center/contain;
+            background: white url('./images/profilo.png') no-repeat center/contain;
             cursor: pointer;
             flex-shrink: 0;
         }
@@ -374,14 +376,14 @@ $message = preg_replace('/[^\PC\s]/u', '', $message); // rimuove caratteri non u
 <body>
 
 <header>
-    <a href="/" id="logo" title="Homepage Penguin AI"></a>
+    <a href="./" id="logo" title="Homepage Penguin AI"></a>
     <div id="menuToggle" aria-label="Menu hamburger" role="button" tabindex="0" aria-expanded="false" aria-controls="menu">
         <span></span>
         <span></span>
         <span></span>
     </div>
     <nav id="menu" role="menu" aria-hidden="true">
-        <a href="/" role="menuitem" tabindex="-1">Generazione Testi</a>
+        <a href=".\" role="menuitem" tabindex="-1">Generazione Testi</a>
         <a href=".\creazioneImmagini.php" role="menuitem" tabindex="-1">Generazione Immagini</a>
     </nav>
 </header>
@@ -395,7 +397,7 @@ $message = preg_replace('/[^\PC\s]/u', '', $message); // rimuove caratteri non u
         Puoi chiedere qualsiasi cosa, da informazioni, curiosità o aiuto con testi creativi!
     </p>
 
-  <!--  <img id="penguinGif" src="https://media.giphy.com/media/Uv5rNrxuw03xY/giphy.gif" alt="Pinguino che balla" />-->
+
 
     <div id="chatbox" aria-live="polite" aria-label="Chat tra utente e Penguin AI"></div>
     <div id="inputArea">
