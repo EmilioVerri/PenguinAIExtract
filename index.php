@@ -2,7 +2,7 @@
 session_start();
 
 define('QUEUE_FILE', sys_get_temp_dir() . '/gemma3_queue.json');
-define('TIMEOUT', 60); // max secondi di attesa in coda
+define('TIMEOUT', 60);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $session_id = session_id();
 
-    // Leggi la coda esistente o crea vuota
+    
     if (file_exists(QUEUE_FILE)) {
         $queue = json_decode(file_get_contents(QUEUE_FILE), true);
         if (!is_array($queue)) $queue = [];
@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $queue = [];
     }
 
-    // Inserisci la richiesta in coda con timestamp
+   
     $request = [
         'session_id' => $session_id,
         'message' => $message,
@@ -36,13 +36,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $start_wait = time();
 
-    // Aspetta che la richiesta sia la prima in coda o timeout
+
     while (true) {
         clearstatcache();
         $queue = json_decode(file_get_contents(QUEUE_FILE), true);
         if (!is_array($queue)) $queue = [];
 
-        // Trova la posizione della nostra richiesta
+      
         $pos = -1;
         foreach ($queue as $i => $req) {
             if ($req['session_id'] === $session_id && $req['message'] === $message) {
@@ -52,13 +52,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($pos === -1) {
-            // La richiesta è stata rimossa dalla coda (problema)
+          
             echo json_encode(["reply" => "Errore nella gestione della coda."]);
             exit;
         }
 
         if ($pos === 0) {
-            // È il nostro turno, chiamiamo il modello AI
+          
             $payload = json_encode([
                 "model" => "gemma3:latest",
                 "prompt" => $message,
@@ -75,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $json = json_decode($response, true);
 
-            // Rimuovi la richiesta dalla coda
+         
             $queue = array_filter($queue, function ($req) use ($session_id, $message) {
                 return !($req['session_id'] === $session_id && $req['message'] === $message);
             });
@@ -90,10 +90,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             exit;
         } else {
-            // Non è ancora il nostro turno, aspetta un attimo o timeout
+           
             $waited = time() - $start_wait;
             if ($waited > TIMEOUT) {
-                // Timeout, rimuovi la richiesta dalla coda
+            
                 $queue = array_filter($queue, function ($req) use ($session_id, $message) {
                     return !($req['session_id'] === $session_id && $req['message'] === $message);
                 });
@@ -103,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo json_encode(["reply" => "Timeout: troppa attesa nella coda, riprova più tardi."]);
                 exit;
             }
-            usleep(200000); // aspetta 0.2 secondi
+            usleep(200000); 
         }
     }
     exit;
@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8" />
     <title>Penguin AI ChatBot</title>
     <style>
-        /* Reset e base */
+  
         * {
             box-sizing: border-box;
         }
@@ -124,7 +124,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(to bottom, #a6d9f7, #e0f0ff);
             margin: 0;
-            padding: 0 0 60px 0; /* spazio per footer */
+            padding: 0 0 60px 0;
             color: #003366;
             user-select: none;
         }
@@ -136,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             left: 0;
             width: 100%;
             height: 60px;
-            background-color: #3a00ff; /* blu elettrico */
+            background-color: #3a00ff;
             color: white;
             display: flex;
             align-items: center;
@@ -431,7 +431,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (e.key === 'Enter') sendBtn.click();
     });
 
-    // Toggle menu hamburger
+   
     menuToggle.addEventListener('click', () => {
         const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
         menuToggle.setAttribute('aria-expanded', !expanded);
@@ -454,6 +454,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     });
 </script>
-
 </body>
 </html>
