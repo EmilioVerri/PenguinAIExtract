@@ -108,7 +108,7 @@
 </main>
 
 <footer>
-    &copy; 2025 Penguin AI - Tutti i diritti riservati
+    &copy; 2025 Penguin AI - Tutti i diritti riservati -&nbsp;<a href="https://emilioverri.altervista.org/" target="_blank" style="color: white;">Emilio Verri</a>
 </footer>
 
 </body>

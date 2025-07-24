@@ -393,7 +393,6 @@ $message = preg_replace('/[^\PC\s]/u', '', $message); // rimuove caratteri non u
 
     <p id="description">
         Scrivi un messaggio nella casella qui sotto e premi "Invia".<br>
-        Penguin AI risponderà in pochi secondi con un testo generato usando il modello Gemma 3.<br>
         Puoi chiedere qualsiasi cosa, da informazioni, curiosità o aiuto con testi creativi!
     </p>
 
@@ -408,7 +407,8 @@ $message = preg_replace('/[^\PC\s]/u', '', $message); // rimuove caratteri non u
 </main>
 
 <footer>
-    &copy; 2025 Penguin AI - Tutti i diritti riservati
+    &copy; 2025 Penguin AI - Tutti i diritti riservati -&nbsp;<a href="https://emilioverri.altervista.org/" target="_blank" style="color: white;">Emilio Verri</a>
+
 </footer>
 
 <script>

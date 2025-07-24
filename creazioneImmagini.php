@@ -268,7 +268,6 @@ $prompt = sanitize_prompt($_POST['prompt'] ?? '');
 
     <p id="description">
         Scrivi una descrizione per l'immagine che vuoi generare e premi "Genera Immagine".<br>
-        Penguin AI creerà un'immagine in base alla tua descrizione utilizzando il modello Gemma 3.
     </p>
 
     <?php if ($_SESSION['busy']): ?>
@@ -323,7 +322,7 @@ $prompt = sanitize_prompt($_POST['prompt'] ?? '');
 </main>
 
 <footer>
-    &copy; 2025 Penguin AI - Tutti i diritti riservati
+    &copy; 2025 Penguin AI - Tutti i diritti riservati -&nbsp;<a href="https://emilioverri.altervista.org/" target="_blank" style="color: white;">Emilio Verri</a>
 </footer>
 
 <script>
