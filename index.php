@@ -9,6 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     $message = trim($data['message'] ?? '');
 
+    
+
     if ($message === '') {
         echo json_encode(["reply" => "Messaggio vuoto."]);
         exit;
@@ -355,7 +357,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <nav id="menu" role="menu" aria-hidden="true">
         <a href="/" role="menuitem" tabindex="-1">Generazione Testi</a>
-        <a href="/generazione-immagini" role="menuitem" tabindex="-1">Generazione Immagini</a>
+        <a href=".\creazioneImmagini.php" role="menuitem" tabindex="-1">Generazione Immagini</a>
     </nav>
 </header>
 
