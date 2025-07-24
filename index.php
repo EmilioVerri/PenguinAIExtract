@@ -1,13 +1,38 @@
 <?php
 session_start();
 
+
+
 define('QUEUE_FILE', sys_get_temp_dir() . '/gemma3_queue.json');
 define('TIMEOUT', 60);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
     $data = json_decode(file_get_contents('php://input'), true);
-    $message = trim($data['message'] ?? '');
+   $message = trim($data['message'] ?? '');
+// Prendi il messaggio dal JSON e togli spazi inutili
+$message = trim($data['message'] ?? '');
+
+// 1. Controllo tipo (deve essere stringa)
+if (!is_string($message)) {
+    echo json_encode(["reply" => "Input non valido."]);
+    exit;
+}
+
+// 2. Limitazione lunghezza (esempio max 500 caratteri)
+if (strlen($message) > 500) {
+    echo json_encode(["reply" => "Messaggio troppo lungo. Massimo 500 caratteri."]);
+    exit;
+}
+
+// 3. Sanitizzazione: rimuovi tag HTML e codici potenzialmente pericolosi
+$message = strip_tags($message);
+
+// 4. Ulteriore rimozione di caratteri non ASCII se vuoi
+$message = preg_replace('/[^\PC\s]/u', '', $message); // rimuove caratteri non unicode stampabili
+
+// Dopo questi controlli $message è più sicuro per l’uso interno
+
 
     
 

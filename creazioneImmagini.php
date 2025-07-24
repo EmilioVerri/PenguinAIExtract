@@ -7,11 +7,30 @@ if (!isset($_SESSION['count'])) $_SESSION['count'] = 0;
 $imageUrl = null;-+
 $error = null;
 
+
+
+function sanitize_prompt($input) {
+    $input = strip_tags($input); // Rimuove tag HTML e JS
+    $input = trim($input); // Rimuove spazi bianchi
+    $input = htmlspecialchars($input, ENT_QUOTES | ENT_HTML5, 'UTF-8'); // Protegge da XSS
+    $input = preg_replace('/[^\p{L}\p{N}\s.,;:!?()\'"-]/u', '', $input); // Solo caratteri "safe"
+    return mb_substr($input, 0, 200); // Max 200 caratteri
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$_SESSION['busy']) {
     if ($_SESSION['count'] >= 10) {
         $error = "Hai raggiunto il limite di 10 immagini generate per sessione.";
     } else {
-        $prompt = trim($_POST['prompt'] ?? '');
+$prompt = sanitize_prompt($_POST['prompt'] ?? '');
+
+
+
+
+
+
+
+
+
         if ($prompt === '') {
             $error = "Inserisci un prompt.";
         } else {
