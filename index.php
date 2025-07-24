@@ -10,31 +10,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
     $data = json_decode(file_get_contents('php://input'), true);
    $message = trim($data['message'] ?? '');
-// Prendi il messaggio dal JSON e togli spazi inutili
+
 $message = trim($data['message'] ?? '');
 
-// 1. Controllo tipo (deve essere stringa)
+
 if (!is_string($message)) {
     echo json_encode(["reply" => "Input non valido."]);
     exit;
 }
 
-// 2. Limitazione lunghezza (esempio max 500 caratteri)
 if (strlen($message) > 500) {
     echo json_encode(["reply" => "Messaggio troppo lungo. Massimo 500 caratteri."]);
     exit;
 }
 
-// 3. Sanitizzazione: rimuovi tag HTML e codici potenzialmente pericolosi
 $message = strip_tags($message);
 
-// 4. Ulteriore rimozione di caratteri non ASCII se vuoi
-$message = preg_replace('/[^\PC\s]/u', '', $message); // rimuove caratteri non unicode stampabili
 
-// Dopo questi controlli $message è più sicuro per l’uso interno
+$message = preg_replace('/[^\PC\s]/u', '', $message); 
 
 
-    
 
     if ($message === '') {
         echo json_encode(["reply" => "Messaggio vuoto."]);
@@ -158,7 +153,7 @@ $message = preg_replace('/[^\PC\s]/u', '', $message); // rimuove caratteri non u
             user-select: none;
         }
 
-        /* HEADER */
+   
         header {
             position: fixed;
             top: 0;
@@ -225,7 +220,7 @@ $message = preg_replace('/[^\PC\s]/u', '', $message); // rimuove caratteri non u
             display: flex;
         }
 
-        /* CONTENUTO PRINCIPALE */
+
         main {
             padding: 100px 20px 20px 20px;
             max-width: 700px;
@@ -239,7 +234,6 @@ $message = preg_replace('/[^\PC\s]/u', '', $message); // rimuove caratteri non u
             margin-bottom: 6px;
         }
 
-        /* TESTO DESCRIZIONE */
         #description {
             font-size: 1.15rem;
             color: #004a99;
@@ -250,7 +244,7 @@ $message = preg_replace('/[^\PC\s]/u', '', $message); // rimuove caratteri non u
             margin-right: auto;
         }
 
-        /* GIF PINGUINO */
+  
         #penguinGif {
             margin: 0 auto 30px auto;
             display: block;
@@ -331,7 +325,7 @@ $message = preg_replace('/[^\PC\s]/u', '', $message); // rimuove caratteri non u
             box-shadow: 0 6px 16px rgba(0,122,204,0.8);
         }
 
-        /* LOADING */
+  
         #loading {
             display: none;
             font-style: italic;
@@ -340,7 +334,7 @@ $message = preg_replace('/[^\PC\s]/u', '', $message); // rimuove caratteri non u
             margin-top: 8px;
         }
 
-        /* FOOTER */
+
         footer {
             position: fixed;
             bottom: 0;
@@ -358,7 +352,7 @@ $message = preg_replace('/[^\PC\s]/u', '', $message); // rimuove caratteri non u
             font-size: 14px;
         }
 
-        /* Responsive minori */
+
         @media (max-width: 480px) {
             main {
                 padding: 100px 10px 20px 10px;
@@ -423,7 +417,7 @@ $message = preg_replace('/[^\PC\s]/u', '', $message); // rimuove caratteri non u
         const div = document.createElement('div');
         div.className = 'message ' + sender;
 
-        // Escape HTML per sicurezza
+
         const escapedText = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         div.innerHTML = `<span class="sender">${sender === 'user' ? 'Tu' : 'Penguin AI'}:</span> ${escapedText}`;
         chatbox.appendChild(div);

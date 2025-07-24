@@ -10,11 +10,11 @@ $error = null;
 
 
 function sanitize_prompt($input) {
-    $input = strip_tags($input); // Rimuove tag HTML e JS
-    $input = trim($input); // Rimuove spazi bianchi
-    $input = htmlspecialchars($input, ENT_QUOTES | ENT_HTML5, 'UTF-8'); // Protegge da XSS
-    $input = preg_replace('/[^\p{L}\p{N}\s.,;:!?()\'"-]/u', '', $input); // Solo caratteri "safe"
-    return mb_substr($input, 0, 200); // Max 200 caratteri
+    $input = strip_tags($input);
+    $input = trim($input); 
+    $input = htmlspecialchars($input, ENT_QUOTES | ENT_HTML5, 'UTF-8'); 
+    $input = preg_replace('/[^\p{L}\p{N}\s.,;:!?()\'"-]/u', '', $input);
+    return mb_substr($input, 0, 200); 
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$_SESSION['busy']) {
@@ -63,7 +63,6 @@ $prompt = sanitize_prompt($_POST['prompt'] ?? '');
     <meta charset="UTF-8" />
     <title>Penguin AI ChatBot</title>
     <style>
-        /* Stessi stili di prima (tagliati qui per brevità, ma vanno messi tutti come prima) */
         * {
             box-sizing: border-box;
         }
@@ -289,7 +288,7 @@ $prompt = sanitize_prompt($_POST['prompt'] ?? '');
             <h3>Immagine generata:</h3>
             <img src="<?= htmlspecialchars($imageUrl) ?>" alt="Immagine generata da AI" />
             <style>
-                /* ...tutto il CSS precedente rimane invariato... */
+     
 
 #downloadBtn {
     background-color: #007acc;
