@@ -1,5 +1,5 @@
 serve scaricare Ollama, io ho scaricato la versione 0.9.6
 ollama run gemma3
-localhost:11434 -> localhost di ollama
+localhost:80 -> localhost di ollama
 start nginx (eseguire reverse proxy)
-cloudflared tunnel --url http://localhost:11434 per eseguirlo sulla porta di ollama
+cloudflared tunnel --url http://localhost:80 per eseguirlo sulla porta di ollama
