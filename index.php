@@ -3,6 +3,7 @@ session_start();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
+
     $data = json_decode(file_get_contents('php://input'), true);
     $message = trim($data['message'] ?? '');
 
@@ -16,63 +17,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // Sanitizza input
     $message = strip_tags($message);
     $message = preg_replace('/[^\PC\s]/u', '', $message);
 
-    $session_id = session_id();
+    // Parametri OpenRouter
+    $api_key = "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"; // <-- inserisci qui la tua API key!
+    $model = "google/gemma-3n-e4b-it:free";
 
-    $lock_file = __DIR__ . '/risposte/lock_' . $session_id . '.lock';
+    $postData = [
+        "model" => $model,
+        "messages" => [
+            ["role" => "user", "content" => $message]
+        ]
+    ];
 
-    // Se esiste lock, rifiuto subito la richiesta
-    if (file_exists($lock_file)) {
-        echo json_encode(["reply" => "Attendi che la richiesta precedente sia terminata."]);
+    $ch = curl_init("https://openrouter.ai/api/v1/chat/completions");
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        "Content-Type: application/json",
+        "Authorization: Bearer $api_key"
+    ]);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+
+    $response = curl_exec($ch);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curl_error = curl_error($ch);
+    curl_close($ch);
+
+    if ($response === false) {
+        echo json_encode(["reply" => "Errore di connessione CURL: $curl_error"]);
         exit;
     }
 
-    // Creo il lock file per segnalare che la richiesta è in corso
-    file_put_contents($lock_file, "locked");
-
-    // Costruisco URL per chiamare script.php
-    $script_url = 'http://localhost/PenguinAIChatBot/script.php?session=' . urlencode($session_id) . '&prompt=' . urlencode($message);
-
-    // Eseguo la chiamata per avviare lo script (non mi aspetto risposta diretta)
-    $call = @file_get_contents($script_url);
-
-    $response_file = __DIR__ . '/risposte/risposta_' . $session_id . '.txt';
-
-    $max_wait_seconds = 5;
-    $waited = 0;
-
-    while (!file_exists($response_file) && $waited < $max_wait_seconds) {
-        usleep(200000); // 0.2 secondi
-        $waited += 0.2;
-    }
-
-    if (!file_exists($response_file)) {
-        // Elimino il lock se timeout
-        unlink($lock_file);
-        echo json_encode(["reply" => "Timeout nell'attesa della risposta."]);
+    if ($httpcode !== 200) {
+        echo json_encode(["reply" => "Errore API OpenRouter: HTTP $httpcode"]);
         exit;
     }
 
-    $response = trim(file_get_contents($response_file));
+    $json = json_decode($response, true);
 
-    // Elimino il file di risposta per evitare accumuli
-   // unlink($response_file);
-
-    // Elimino il lock (fine lavorazione)
-   // unlink($lock_file);
-
-    if ($response === '') {
-        $response = "Nessuna risposta dal bot.";
+    if (!isset($json['choices'][0]['message']['content'])) {
+        echo json_encode(["reply" => "Risposta API non valida o vuota."]);
+        exit;
     }
 
-    echo json_encode(["reply" => $response]);
+    $reply = trim($json['choices'][0]['message']['content']);
+
+    echo json_encode(["reply" => $reply]);
     exit;
 }
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="it">
@@ -81,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Penguin AI ChatBot</title>
     <link rel="shortcut icon" href="./images/favicon.ico" type="image/x-icon" />
     <style>
-        /* Stili identici a quelli del tuo codice originale */
+        /* Qui la tua grafica originale, copiata pari pari */
         * { box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -224,128 +221,110 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
-    
-
 <header>
     <div id="logo" title="Torna alla home"></div>
     <div id="menuToggle" aria-label="Apri menu" role="button" tabindex="0">
         <span></span><span></span><span></span>
     </div>
     <nav id="menu" aria-label="Menu principale">
-        <a href="#" title="Home">Home</a>
-        <a href="#" title="Aiuto">Aiuto</a>
-        <a href="#" title="Info">Info</a>
+        <a href="./" title="Generazione Testi">Generazione Testi</a>
+        <a href="./creazioneImmagini.php" title="Generazioni Immagini">Generazione Immagini</a>
     </nav>
 </header>
-
 
 <main>
     <h2>Penguin AI ChatBot</h2>
     <div id="description">
-        Digita il tuo messaggio e premi Invia o Invio per parlare con Penguin AI.<br />
-        Attendi qualche secondo per la risposta.
+        Questo è un prototipo di chatbot che utilizza un modello AI per rispondere alle tue domande. Scrivi qualcosa e premi "Invia".
     </div>
+    <div id="chatbox" aria-live="polite" aria-relevant="additions"></div>
 
-    <div id="chatbox" role="log" aria-live="polite" aria-relevant="additions"></div>
-
-    <div id="inputArea">
-        <input id="message" type="text" autocomplete="off" placeholder="Scrivi il tuo messaggio..." aria-label="Messaggio" maxlength="500" />
-        <button id="sendBtn" aria-label="Invia messaggio">→</button>
-    </div>
+    <form id="chatForm" autocomplete="off" aria-label="Modulo chat">
+        <div id="inputArea">
+            <input type="text" id="message" name="message" placeholder="Scrivi qui la tua domanda" aria-required="true" aria-describedby="helpText" />
+            <button type="submit" id="sendBtn" disabled>Invia</button>
+        </div>
+        <small id="helpText" style="display:block; color:#004a99; margin-top:5px;">
+            Usa massimo 500 caratteri. Attendi risposta prima di inviare un nuovo messaggio.
+        </small>
+    </form>
 </main>
 
 <footer>
-    &copy; Penguin AI 2025
+    Penguin AI © 2025 - Protetto da copyright.
 </footer>
 
 <script>
 (() => {
-    const sendBtn = document.getElementById('sendBtn');
-    const messageInput = document.getElementById('message');
-    const chatbox = document.getElementById('chatbox');
     const menuToggle = document.getElementById('menuToggle');
     const menu = document.getElementById('menu');
     const logo = document.getElementById('logo');
+    const chatForm = document.getElementById('chatForm');
+    const messageInput = document.getElementById('message');
+    const sendBtn = document.getElementById('sendBtn');
+    const chatbox = document.getElementById('chatbox');
 
-    // Funzione per aggiungere messaggi al chatbox
-    function addMessage(text, sender) {
+    let waitingResponse = false;
+
+    function toggleMenu() {
+        menuToggle.classList.toggle('active');
+        menu.style.display = menuToggle.classList.contains('active') ? 'flex' : 'none';
+    }
+
+    menuToggle.addEventListener('click', toggleMenu);
+    menuToggle.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleMenu();
+        }
+    });
+
+    logo.addEventListener('click', () => {
+        location.reload();
+    });
+
+    messageInput.addEventListener('input', () => {
+        sendBtn.disabled = messageInput.value.trim() === '' || waitingResponse;
+    });
+
+    function appendMessage(sender, text) {
         const div = document.createElement('div');
-        div.classList.add('message', sender);
-        const spanSender = document.createElement('span');
-        spanSender.classList.add('sender');
-        spanSender.textContent = sender === 'user' ? 'Tu:' : 'Penguin:';
-        div.appendChild(spanSender);
-        div.appendChild(document.createTextNode(text));
+        div.className = 'message ' + sender;
+        div.innerHTML = `<span class="sender">${sender === 'user' ? 'Tu:' : 'Bot:'}</span>${text.replace(/\n/g, '<br>')}`;
         chatbox.appendChild(div);
         chatbox.scrollTop = chatbox.scrollHeight;
     }
 
-    // Funzione per inviare il messaggio al server
-    async function sendMessage() {
-        const message = messageInput.value.trim();
-        if (!message) return;
+    chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (waitingResponse) return;
+        const msg = messageInput.value.trim();
+        if (msg === '') return;
 
-        addMessage(message, 'user');
+        appendMessage('user', msg);
         messageInput.value = '';
-        messageInput.disabled = true;
         sendBtn.disabled = true;
+        waitingResponse = true;
 
         try {
-            const response = await fetch('index.php', {
+            const resp = await fetch(window.location.href, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message })
+                body: JSON.stringify({ message: msg })
             });
-
-            if (!response.ok) {
-                throw new Error(`Errore HTTP: ${response.status}`);
-            }
-
-            const data = await response.json();
-            addMessage(data.reply || 'Nessuna risposta.', 'bot');
-
+            const data = await resp.json();
+            appendMessage('bot', data.reply || 'Nessuna risposta ricevuta.');
         } catch (error) {
-            addMessage('Errore di rete o server: ' + error.message, 'bot');
+            appendMessage('bot', 'Errore di connessione al server.');
         } finally {
-            messageInput.disabled = false;
-            sendBtn.disabled = false;
+            waitingResponse = false;
+            sendBtn.disabled = messageInput.value.trim() === '';
             messageInput.focus();
         }
-    }
-
-    // Eventi
-    sendBtn.addEventListener('click', sendMessage);
-
-    messageInput.addEventListener('keydown', e => {
-        if (e.key === 'Enter' && !sendBtn.disabled) {
-            e.preventDefault();
-            sendMessage();
-        }
     });
 
-    menuToggle.addEventListener('click', () => {
-        menuToggle.classList.toggle('active');
-    });
-
-    // Chiudi menu cliccando su link o fuori
-    menu.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-            menuToggle.classList.remove('active');
-        });
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!menu.contains(e.target) && e.target !== menuToggle) {
-            menuToggle.classList.remove('active');
-        }
-    });
-
-    // Logo cliccabile: torna alla home (puoi cambiare URL)
-    logo.addEventListener('click', () => {
-        window.location.href = '/';
-    });
+    window.addEventListener('load', () => messageInput.focus());
 })();
 </script>
-<h1><?php echo session_id(); ?></h1>
 </body>
 </html>
