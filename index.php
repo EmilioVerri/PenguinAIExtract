@@ -251,7 +251,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </main>
 
 <footer>
-     &copy; 2025 Penguin AI - Tutti i diritti riservati -&nbsp;<a href="https://emilioverri.altervista.org/" target="_blank" style="color: white;">Emilio Verri</a>
+     &copy; 2025 Penguin AI - Tutti i diritti riservati -&nbsp;<a href="https://emilioverri.altervista.org/" style="color:black" target="_blank" style="color: white;">Emilio Verri</a>
 </footer>
 
 <script>
